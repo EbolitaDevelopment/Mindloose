@@ -1,0 +1,142 @@
+<html>
+<head>
+    <meta charset="UTF-8" /> 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Concert+One&family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+<style>
+body{
+  color:#f7eedd;
+  font-family: "Concert One", sans-serif;
+}
+
+h1{
+  text-align:left;
+  
+  color:#008DDA;
+  font-size: 40px;
+  font-weight:bolder;
+
+}
+
+h2{
+  text-align:left;
+  
+  color:#008DDA;
+  font-size: 19px;
+  
+  
+}
+h3{
+text-align:center;
+  color:#008DDA;
+  font-size: 28px;
+}
+
+.principal{
+  display: flex;
+  justify-content: space-between;
+  vertical-align: bottom;
+
+}
+
+.formulario{
+  text-align: center;
+
+}
+
+.formulario h1{
+  text-align: center;
+}
+
+.formulario input{
+    background-color: #ACE2E1;
+    margin: .5%;
+    font-size: 15pt;
+    border-radius: 70px;
+    padding: 34px;
+    width: 40%;
+    font-family: "Concert One", sans-serif;
+    border-color: #008DDA;
+    color:#008DDA;
+
+}
+
+.dos input{
+    background-color: #ACE2E1;
+    margin: .5%;
+    font-size: 15pt;
+    border-radius: 70px;
+    padding: 34px;
+    width: 81.75%;
+    font-family: "Concert One", sans-serif;
+    border-color: #008DDA;
+    color:#008DDA;
+}
+
+p{
+    color:black;
+    font-size: 19px;
+}
+p a{
+    color:black;
+    font-size: 19px;
+    
+}
+.formulario button{
+  background-color:#41c9e2;
+  color:#f7eedd;
+  vertical-align: middle;
+  box-align: right;
+  margin: 30px;
+  font-size: 15pt;
+  border-radius: 70px;
+  padding: 34px;
+  width: 81.75%;
+  font-family: "Concert One", sans-serif;
+  display: inline-block;
+  border-color: #008DDA;
+}
+.formulario button:hover{
+  background-color: #008DDA;
+  color: #f7eedd;
+}
+
+
+</style>
+</head>
+    <body bgcolor="F7EEDD">
+      <div class="principal">|
+      
+        <div ><br><br><br><br><br><br><br><br>
+            <img src="./payaso blanco.png" alt="Logo" width=50%>
+            <h1 >REGISTRATE</h1>
+            <h2> Crea una cuenta de MINDLOOSE</h2> 
+<form id="veriregistro">          
+            <p>Al registrarse esta de acuerdo con los <a href="/terminosycondiciones">términos y <br> condiciones</a> así 
+                como <a href="/politicadeprivacidad">la  política  de privacidad.</a></p>
+
+        </div>
+
+        <div class="formulario" style="width: 70% ;">
+            <h3>RELLENA LOS SIGUIENTES CAMPOS:</h3>
+        
+
+          <input type="email" id="email" name="email" placeholder="Mail" >
+          <input type="text" id="name" name="name" placeholder="Nombre" >
+          <input type="text" id="apellidop" name="apellidop" placeholder="Apellido Paterno" >
+          <input type="text" id="apellidom" name="apellidom" placeholder="Apellido Materno">
+          <div class="dos" >
+          <input type="password" id ="password" name ="password" placeholder="Crear contraseña">
+          <input type="password"  id="password2" name ="password2" placeholder="Verificar contraseña">
+          <button type="submit" >IR AL FORMULARIO</button>
+
+</form>   
+
+      </div></div>
+     
+
+      <script src ="registro.js" defer>
+      </script>
+    </body>
+</html>
