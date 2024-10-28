@@ -14,26 +14,39 @@ const connection = mysql.createConnection({
     password: process.env.PASSWORD
 })
 //Se crea una funcion en la que 
-function registrar(req, x) {
-    const email = req.body.v;
-    const name = req.body.v2;
-    const apellidop = req.body.v3;
-    const apellidom = req.body.v4;
-    const password = req.body.v5;
+async function registrar(req, x) {
+    const email = req.body.email;
+    const name = req.body.name;
+    const apellidop = req.body.apellidop;
+    const apellidom = req.body.apellidom;
+    const password = req.body.hashPassword;
+    let rows = [];
     const nuevoUsuario = ("'" + email + "'," + " '" + name + "'," + " '" + apellidop + "'," + " '" + apellidom + "'," + "'" + password + "'")
+    try{
+        
+        rows = await connection.promise().query('SELECT * FROM usuario WHERE mail = ?', [email]);
+        if(rows[0] = []){
     try {
-        if (!connection.query(`INSERT INTO usuario values (${nuevoUsuario})`)) {
-            x.status(401).send({ status: "error", message: "datos invalidos", redirect: "/ProcesoIncompleto" })
-            return false;
+        rows = await connection.promise().query(`INSERT INTO usuario values (${nuevoUsuario})`)
+        
+        if ( rows.affectedRows === 0) {
+            return x.status(401).send({ status: "error", message: "datos invalidos"});
         }
         else {
-            try { connection.query(`INSERT INTO progreso values ('${email}',0,0)`) } catch {
-                x.status(402).send({ status: "error", message: "datos invalidos", redirect: "/ProcesoIncompleto" })
+            try { connection.query(`INSERT INTO progreso values ('${email}',0,0)`) 
+            } catch {
+            return x.status(402).send({ status: "error", message: "datos invalidos"})
             }
-            x.status(201).send({ status: "ok", message: "el usuario ya esta registrado" })
-            return true;
+            return x.status(201).send({ status: "ok", message: "el usuario ya esta registrado" });
         }
-    } catch { x.status(403).send({ status: "error", message: "datos invalidos", redirect: "/ProcesoIncompleto" }) }
+    } catch { 
+        return x.status(403).send({ status: "error", message: "datos invalidos"  }) }}
+        else{
+            return x.status(403).send({ status: "error", message: "datos invalidos"})
+        }
+    }catch(error){
+
+    }
 }
 async function login(req, response) {
     const email = req.body.b1;
@@ -114,6 +127,7 @@ async function update(req, res) {
 
 }
 async function verificar(req, res) {
+    
     const email = req.body.decodificada.user;
     try {
         const [result] = await connection.promise().query(`SELECT mail FROM usuario WHERE mail = '${email}';`);

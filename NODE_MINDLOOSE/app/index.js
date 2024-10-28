@@ -63,7 +63,6 @@ app.post("/api/cambiar",authentication.cambiar)
 app.post("/api/cambiarcontrasena",database.cambiarcontrasena)
 app.post("/api/update",database.update)
 app.get("/api/arriba", authentication.verificar)
-app.get("/api/cerrar", authentication.cerrar)
 
 //pkill node sirve para reiniciar todo :D
 //npm i bcrypt cookie-parser cors dotenv express jsonwebtoken mysql2  

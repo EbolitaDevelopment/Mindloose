@@ -17,22 +17,13 @@ function validarEmail(email) {
     }
     return false;
 }
+function contrasenavalidacion (password) {
+  const contrasena = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,12}$/;
+  if(!contrasena.test(password)){
+    return false;
+  }
+  return true;}
 
-async function registrar(v, v2, v3, v4, v5) {
-try{
-
-const x = await fetch("http://localhost:4000/api/registrar", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({ v, v2, v3, v4, v5 })
-  })
-  if(!x){
-    return false;}
-    return true;
-}catch{return false;
-}}
 async function inicioSesion(b1, b2) {
   try {
     const response = await fetch("http://localhost:4000/api/inicioSesion", {
@@ -68,7 +59,7 @@ async function registro(req, res) {
   const password2 = req.body.password2;
 
   //Se evaluan las variables con funciones externas
-  if (!email ||!validarEmail(email)|| !password || !name || !apellidop || !apellidom || !password2 || !validarContraseñas(password, password2)) {
+  if (!email ||!validarEmail(email)|| !password || !name || !apellidop || !apellidom || !password2 || !validarContraseñas(password, password2)|| !contrasenavalidacion(password)) {
     return res.status(400).send({ status: "error", message: "los campos son incorrectos" , redirect:"/Procesoincompleto"})
   }
   //Se crea una constante hash  y salt con metodos de la clase byscript para hashear la password
@@ -76,8 +67,21 @@ async function registro(req, res) {
   const hashPassword = await bcryptjs.hash(password, salt);
   
   //Se mandan las variables ya evaluadas a la clase mysql para despues enviarlos a la base a traves de un fetch post
-  if (!registrar(email, name, apellidop, apellidom, hashPassword)) {
+  try{
+    let consulta = await fetch("http://localhost:4000/api/registrar", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({email, name, apellidop, apellidom, hashPassword })
+      })
+  
+  if (!consulta.ok) {
     return res.status(400).send({ status: "error", message: "el usuario ya esta registrado", redirect:"/Procesoincompleto" })
+  }}
+  catch(error){
+    return res.status(400).send({ status: "error", message: "el usuario ya esta registrado", redirect:"/Procesoincompleto" })
+
   }
   //Se crea una cookie  con metodos sign Y date con los metodos jsonwebtoken y las encriptaciones del archivo .env
   const token = jsonwebtoken.sign({user: email}, process.env.JWT_SECRET, 
@@ -88,7 +92,7 @@ async function registro(req, res) {
   } 
   //Se regresa la cookie al post de la clase registro y redirecciona a cuestionario
   res.cookie("jwt", token, cookieOption)
-  res.send({status:"ok ", message:"registrado con exito", redirect:"/cuestionario"})
+  return res.send({status:"ok ", message:"registrado con exito", redirect:"/cuestionario"})
 }
 //En esta funcion se hace el inicio de sesion de los usuarios
 async function isesion(req, res) {
@@ -167,7 +171,11 @@ async function cambiar(req,res){
 //En esta funcion se verifica la identidad del usuario
 async function verificar(req,res) {
   try {
-    const cookie_JTW = req.headers.cookie.split(";").find(cookie => cookie.startsWith("jwt=")).slice(4);
+    let cookie_ = req.headers.cookie;
+    if(cookie_ == undefined){
+      return res.status(402).send({ status: "error"});
+    }
+    let cookie_JTW = cookie_.split(";").find(cookie => cookie.startsWith("jwt=")).slice(4);
     const decodificada = jsonwebtoken.verify(cookie_JTW, process.env.JWT_SECRET);
     const response = await fetch("http://localhost:4000/api/verificar", {
       method: "POST",
@@ -187,15 +195,10 @@ async function verificar(req,res) {
     return res.status(403).send({ status: "error", redirect: "/Procesoincompleto" });
   }
 }
-//La funcion cierra la cesión
-function cerrar(req,response){
-  
-return response.status(202).send({status:"ok", redirect:"/Cuentaeliminada"})}
 //Se exportan las funciones con una constante
 export const methods = {
   registro,
   isesion, 
   cambiar,
-  verificar,
-  cerrar
+  verificar
 }

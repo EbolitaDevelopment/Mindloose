@@ -24,8 +24,11 @@ function nums1(evt) {
 //Se crea una funcion asyncrona donde crea una cookie para que los retos se actualicen semanalmente,
 //Despues evalua si el array esta completo y despues establece los ids de los retos como los valores obtenidos de obtener retos
 async function mostrarRetos() {
+    
     const cookie = getCookie('retos');
+    
     let retos = cookie ? JSON.parse(cookie) : null;
+    console.log(retos)
     const now = new Date().getTime();
     const expiryTime = 7 * 24 * 60 * 60 * 1000;
     if (!retos || now - retos.timestamp > expiryTime) {
