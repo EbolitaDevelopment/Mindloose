@@ -234,7 +234,7 @@ async function progreso1(req, response) {
 }
 async function retos(req, res) { 
     try {
-
+        
         const resultado = await progreso1(req, response);
         if (resultado.length === 0) {
             return res.status(420).send({ status: "error" });
@@ -277,17 +277,18 @@ async function retos(req, res) {
                 const [checar] = await connection.promise().query('SELECT id FROM retosCompletados WHERE mail = ?', [user]);
                 nReto = verReto(coeficiente, coeficiente2);
                 comprobar = checar.some(reto => reto.id === nReto);
-
+                    
                 if (comprobar === false) {
-                    [retos] = await connection.promise().query('SELECT descripción FROM retos WHERE nReto = ?', [nReto]);
-                  
+                    [retos] = await connection.promise().query(`SELECT descripción FROM retos WHERE nReto = ${nReto}`);
+                    console.log(nReto)
+                    console.log(retos[0])
                     if (retos.length === 0) {
                         return res.status(403).send({ status: "error" });
                     }
                     retos1 = retos[0].descripción;
 
                     [Iretos] = await connection.promise().query(`INSERT INTO retosCompletados VALUES (?, ?)`, [nReto, user]);
-
+                    
                     if (Iretos.affectedRows === 0) {
                         return res.status(402).send({ status: "error", message: "Error al inicializar el progreso" });
                     }

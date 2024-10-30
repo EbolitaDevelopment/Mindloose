@@ -65,6 +65,5 @@ app.post("/api/update",database.update)
 app.get("/api/arriba", authentication.verificar)
 
 //pkill node sirve para reiniciar todo :D
-//npm i bcrypt cookie-parser cors dotenv express jsonwebtoken mysql2  
-//devDependencies: morgan, nodemon
+//npm i bcrypt cookie-parser cors dotenv express jsonwebtoken mysql2 morgan nodemon
 //ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'n0m3l0';

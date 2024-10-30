@@ -119,6 +119,29 @@ VALUES
 (80,4,'Sal con tus amigo(s) y organizen una salida y platiquen sobre sus inseguridades '),
 (81,4,'Sal con tus amigos o compañeros a un parque de diversiones' );	
 
+INSERT INTO db_mindloose.retos
+VALUES
+(82,4,'LUGAR:comprometerse a realizar cosas concretas:Por ejemplo: “Voy a ir solo o sola al supermercado a hacer la compra” o “Voy a ir solo o sola en autobús”. '),
+(83,4,'LUGAR:Hablar enfrente de muchas personas'),
+(84,4,'LUGAR:Empezar una conversación con un grupo de personas'),
+(85,4,'LUGAR:Hablar sobre lo que sientes con un grupo de amigos'),
+(86,4,'habla con la persona que te gusta'),
+(87,4,'Ve a una café cuando haya gente y haz como si te faltará dinero y pide un 2 pesos prestados '),
+(88,4,'Ve a un parque o a un  café y pregunta a un grupo de amigos si te puedes sentar con ellos'),
+(89,4,'invita a salir a la persona que te gusta'),
+(90,4,'sal de tu casa con una persona de tu confianza y vayan a comer'),
+(91,4,'sal a comer solo a una plaza'),
+(92,4,'canta una canción que te guste en frente de muchas personas,o tararea la canción rodeado de muchas personas'),
+(93,4,'sube una foto de ti a redes sociales (muestra tu cara totalmente) con una canción que te guste,Y NO LA BORRES'),
+(94,4,'Pedir recomendación de música a un grupo de chicos que veas'),
+(95,4,'Ofrece tu lugar a alguien en el transporte público'),
+(96,4,'Compra dulces y regalaselo s gente que veas que le va mal su día'),
+(97,4,'Lleva un juego de dos personas o más y  preguntas a alguien si quiere jugar contigo'),
+(98,4,'sal a la calle con ropa que sientes que resalten tus inseguridades y no escuches los malos comentarios,disfruta tu día como normalidad'),
+(99,4,'Ve y pidele el numero a una persona que te agrade'),
+(100,4,'Sal con tus amigo(s) y organizen una salida y platiquen sobre sus inseguridades '),
+(101,4,'Sal con tus amigos o compañeros a un parque de diversiones' );	
+
 
 ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'n0m3l0';
 
