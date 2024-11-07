@@ -24,6 +24,30 @@ function contrasenavalidacion (password) {
   }
   return true;}
 
+async function inicioSesion(b1, b2) {
+  try {
+    const response = await fetch("http://localhost:4000/api/inicioSesion", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ b1, b2 })
+    });
+    const resJson = await response.json();
+    if (response.ok) {
+
+      return true; 
+    } else {
+
+      console.error("Error en la respuesta del servidor:");
+      return false; 
+    }
+  } catch (error) {
+
+    console.error("Error en la solicitud:");
+    return false; 
+}
+}
 //En esta funcion se hace el registro de los usuarios
 async function registro(req, res) {
 //Como desde el archivo registro.js se envio un fetch tipo post con este ruteo, se obtienen las variables desde el front
@@ -79,20 +103,10 @@ async function isesion(req, res) {
   if (!email || !validarEmail(email)||!password) {
     return res.status(403).send({ status: "error", message: "Los campos son incorrectos", redirect: "/Procesoincompleto" });
   }
-    try {
-      let consulta = await fetch("http://localhost:4000/api/inicioSesion", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ email, password })
-      });
-      if (!consulta.ok) {
-        return res.status(400).send({ status: "error", message: "la contraseña es incorrecta", redirect:"/Procesoincompleto" })
 
-      }
-    } catch (error) {
-      return res.status(400).send({ status: "error", message: "error en la consulta a la base", redirect:"/Procesoincompleto" })
+  const isAuthenticated = await inicioSesion(email, password);
+  if (!isAuthenticated) {
+    return res.status(404).send({ status: "error", message: "Los campos son incorrectos2", redirect: "/Procesoincompleto" });
   }
   //Se crea una cookie  con metodos sign Y date con los metodos jsonwebtoken y las encriptaciones del archivo .env
   const token = jsonwebtoken.sign({ user: email }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRATION });
@@ -105,6 +119,21 @@ async function isesion(req, res) {
   return res.status(201).send({ status: "ok", message: "Loggeado con éxito", redirect: "/sesioniniciada" });
 }
 
+async function cambiarcontrasena(usuario,password){
+
+  try{
+    const x = await fetch("http://localhost:4000/api/cambiarcontrasena", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({usuario,password})})
+    if(x.ok){
+    return true;}
+    return false;}
+    catch{return false;}
+    
+}
 //En esta funcion se hace el cambio de contraseña de los usuarios
 async function cambiar(req,res){  
   //Como desde el archivo cuenta.js se envio un fetch tipo post con este ruteo, se obtienen las variables desde el front
@@ -114,53 +143,30 @@ async function cambiar(req,res){
     //Se usa la cookie para obtener el usuario decodificandola
     const cookie_JTW = req.headers.cookie.split(";").find(cookie => cookie.startsWith("jwt=")).slice(4);
     const decodificada=jsonwebtoken.verify(cookie_JTW,  process.env.JWT_SECRET)
-    const email = decodificada.user;
+    const usuario = decodificada.user;
     
   try{
   //Valida que las contraseñas sean iguales con el metodo validarContraseñas
+  const contraseñas = validarContraseñas(password,password2)
+  if(contraseñas){
+  return res.status(400).send({status:"error ",message:"no puedes ingresar la misma contraseña",redirect:"/Procesoincompleto"});
+  }
   
-  if(validarContraseñas(password,password2)||!validarContraseñas(password2,password3)){
-  return res.status(400).send({status:"error ",message:"Colocaste mal las contraseñas",redirect:"/Procesoincompleto"});
+  if(!inicioSesion(usuario,password)||!validarContraseñas(password2,password3)){
+  return res.status(400).send({status:"error ",redirect:"/Procesoincompleto"});
   }
-  try {
-    let consulta = await fetch("http://localhost:4000/api/inicioSesion", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ email, password })
-    });
-    if (!consulta.ok) {
-      return res.status(400).send({ status: "error", message: "la contraseña es incorrecta", redirect:"/Procesoincompleto" })
-    }
-  } catch (error) {
-    return res.status(400).send({ status: "error", message: "error en la consulta a la base", redirect:"/Procesoincompleto" })
-  }
-
   //Se crea una nueva salt  y hash
   const salt = await bcryptjs.genSalt(5);
   const hashPassword = await bcryptjs.hash(password2, salt);
   //Se  intenta cambiar la contraseña con un fetch q manda las variables a una clase de mysql
-  try {
-    let consulta = await fetch("http://localhost:4000/api/cambiarcontrasena", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ email, hashPassword })
-    });
-    if (!consulta.ok) {
-      return res.status(400).send({ status: "error", message: "error en la consulta a la base", redirect:"/Procesoincompleto" })
-    }
-  } catch (error) {
-    return res.status(400).send({ status: "error", message: "error en la consulta a la base", redirect:"/Procesoincompleto" })
-  }
+  const cambiar = await cambiarcontrasena(usuario, hashPassword);
   //Acorde al resultado se redirecciona a proceso completo o incompleto
-  
-  return res.send.status(202).send({status:"ok ", message:"contraseña cambiada",redirect:"/contrasenacambiada"})}
-  catch{
-  return res.status(400).send({status:"error", message:"error en consulta de datos",redirect:"/Procesoincompleto"})
-}
+  if(!cambiar){
+  return res.status(400).send({status:" error", message:"contraseña cambiada",redirect:"/contrasenacambiada"})}
+  return res.send.status(202).send({status:"ok ", message:"contraseña cambiada",redirect:"/Procesoincompleto"})}
+  catch{}
+  return res.status(202).send({status:"ok ", message:"contraseña cambiada",redirect:"/contrasenacambiada"})
+
 }
 //En esta funcion se verifica la identidad del usuario
 async function verificar(req,res) {

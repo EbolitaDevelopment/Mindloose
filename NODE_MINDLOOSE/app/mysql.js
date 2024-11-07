@@ -49,8 +49,8 @@ async function registrar(req, x) {
     }
 }
 async function login(req, response) {
-    const email = req.body.email;
-    const password = req.body.password;
+    const email = req.body.b1;
+    const password = req.body.b2;
 
     try {
         const [rows] = await connection.promise().query('SELECT contra FROM usuario WHERE mail = ?', [email]);
@@ -59,7 +59,6 @@ async function login(req, response) {
             return response.status(401).send({ status: "error", message: "Usuario no encontrado" });
         }
         const contraseñaCorrecta = await bcryptjs.compare(password, rows[0].contra);
-        console.log(contraseñaCorrecta)
         if (!contraseñaCorrecta) {
             return response.status(402).send({ status: "error", message: "Contraseña incorrecta" });
         }
@@ -140,8 +139,8 @@ async function verificar(req, res) {
     } catch { return res.status(400).send({ status: "error", message: "Los campos son incorrectos" }); }
 }
 async function cambiarcontrasena(req, res) {
-    const usuario = req.body.email;
-    const password = req.body.hashPassword;
+    const usuario = req.body.usuario;
+    const password = req.body.password;
     try {
         const result = await connection.promise().query(`UPDATE usuario 
     SET contra='${password}' WHERE mail = '${usuario}';`);
@@ -149,7 +148,7 @@ async function cambiarcontrasena(req, res) {
         if (result.affectedRows === 0) {
             return false, res.status(400).send({ status: "error", message: "Error en el servidor" });
         }
-        return res.status(200).send({ status: "ok", message: "Contraseña cambiada" });
+        return true, res.status(200).send({ status: "ok", message: "Contraseña cambiada" });
     } catch { return res.status(500).send({ status: "error", message: "Error en el servidor" }); }
 }
 async function progreso(req, response) {
@@ -394,4 +393,3 @@ export const querys = {
     update, datos,
     comentarios
 }
-

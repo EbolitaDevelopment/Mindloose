@@ -1,2 +1,1 @@
-# Mindloose
-Proyecto Mindloose
+
