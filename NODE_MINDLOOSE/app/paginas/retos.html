@@ -3,153 +3,24 @@
 <head>
   <meta charset="UTF-8" />
   <link rel="stylesheet" href="/style.css">
-  <style>
-    h4 {
-      text-align: center;
-      font-family: Georgia, 'Times New Roman', Times, serif;
-      color: #008DDA;
-      font-size: 40px;
-      font-weight: bolder;
-      text-align: center;
-
-    }
-
-    #content {
-      display: none;
-    }
-    #content.active {
-      display: block;
-    }
-    #Progreso.inactive {
-      display: none;
-    }
-    .progreso h2{
-      text-align: center;
-    }
-    table {
-      width: auto;
-      border-color: black;
-      border-radius: 10px;
-      table-layout: fixed;
-      border-collapse: collapse;
-      border: .1px solid #008DDA;
-
-    }
-
-    tr {
-      border: .1px solid #008DDA;
-      width: auto;
-      padding: auto;
-
-    }
-
-    td{
-      border-left: .1px solid #008DDA;
-      border-right: .1px solid #008DDA;
-      text-align: center;
-    }
-    td h2{text-align: center;}
-
-    td p {
-      text-align: justify;
-    }
-
-    .peque {
-      text-align: center;
-    }
-
-    div {
-      width: auto;
-    }
-
-    .a {
-      width: 20px;
-      background-color: #f7eedd;
-      border-color: #008DDA;
-      color: black;
-      text-align: center;
-    }
-  </style>
 </head>
-
+<style>
+ button{
+  background-color:#41c9e2;
+  color:#f7eedd;
+  font-size: 15pt;
+  border-radius: 70px;
+  width: 50%;
+  font-family: "Concert One", sans-serif;
+  display: inline-block;
+  border-color: #008DDA;
+}
+</style>
 <body bgcolor="f7eedd"><br>
-
-  <div id="content" align="center">
     <h1>RETOS SEMANALES</h1>
-
-    <table align='center'>
-      <tbody>
-        <p>Estos son los retos que estarás completando esta semana</p>
-        <br><br>
-        <tr class="peque">
-          <td>
-            <H2>N.RETO</H2>
-          </td>
-          <td>
-            <H2>DESCRIPCIÓN</H2>
-          </td>
-
-        </tr>
-        <tr class="peque">
-          <td>1</td>
-          <td>
-            <p id="reto1"></p>
-          </td>
-        </tr>
-        <tr class="peque">
-          <td>2</td>
-          <td>
-            <p id="reto2"></p>
-          </td>
-        </tr>
-        <tr class="peque">
-          <td>3</td>
-          <td>
-            <p id="reto3"></p>
-          </td>
-        </tr>
-        <tr class="peque">
-          <td>4</td>
-          <td>
-            <p id="reto4"></p>
-          </td>
-        </tr>
-        <tr class="peque">
-          <td>5</td>
-          <td>
-            <p id="reto5"></p>
-          </td>
-        </tr>
-        <tr class="peque">
-          <td>6</td>
-          <td>
-            <p id="reto6"></p>
-          </td>
-        </tr>
-        <tr class="peque">
-          <td>7</td>
-          <td>
-            <p id="reto7"></p>
-          </td>
-        </tr>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-  <div class="Progreso" id="Progreso">
-    <form id="uProgreso">
-      <h2>Ingresa en el siguiente campo la cantidad de retos que completaste durante la semana <input type="text"
-          maxlength="1" onkeypress="return nums1(event);" required id="soypro" class="a">
-      </h2>
-      <center><button type="submit">SUBIR</button></center>
-    </form>
-
-    <div >
-      <p id="c1"></p>
-      <p id="s"></p>
-    </div>
-
-  </div>
+        <h5>Estos son los retos que estarás completando esta semana:</h3>
+        <form id = "uProgreso"><div id="retos"></div>
+          <center><button type="submit">Realizé los retos</button></center></form>
   <script src="retos.js"></script>
 </body>
 

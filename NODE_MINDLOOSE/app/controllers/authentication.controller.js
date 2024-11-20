@@ -122,7 +122,7 @@ async function cambiar(req,res){
   
  try{
  //Valida que las contraseñas sean iguales con el metodo validarContraseñas
-  if(validarContraseñas(password,password2)||!validarContraseñas(password2,password3)){
+  if(validarContraseñas(password,password2)||!validarContraseñas(password2,password3)||!contrasenavalidacion(password2)){
  return res.status(400).send({status:"error ",message:"Colocaste mal las contraseñas",redirect:"/Procesoincompleto"});
  }
  try {
@@ -160,38 +160,56 @@ async function cambiar(req,res){
    return res.status(400).send({ status: "error", message: "error en la consulta a la base", redirect:"/Procesoincompleto" })
  }
  //Acorde al resultado se redirecciona a proceso completo o incompleto
-  return res.send.status(202).send({status:"ok ", message:"contraseña cambiada",redirect:"/contrasenacambiada"})}
+ console.log("xd")
+  return res.status(202).send({status:"ok ", message:"contraseña cambiada",redirect:"/contrasenacambiada"})}
  catch{
  return res.status(400).send({status:"error", message:"error en consulta de datos",redirect:"/Procesoincompleto"})
 }
 }
 //En esta funcion se verifica la identidad del usuario
-async function verificar(req,res) {
- try {
-   let cookie_ = req.headers.cookie;
-   if(cookie_ == undefined){
-     return res.status(402).send({ status: "error"});
-   }
-   let cookie_JTW = cookie_.split(";").find(cookie => cookie.startsWith("jwt=")).slice(4);
-   const decodificada = jsonwebtoken.verify(cookie_JTW, process.env.JWT_SECRET);
-   const response = await fetch("http://localhost:4000/api/verificar", {
-     method: "POST",
-     headers: {
-       "Content-Type": "application/json"
-     },
-     body: JSON.stringify({ decodificada})
-   });
-//Y dependiendo el resultado te redirecciona a proceso indirecto o no
-   if (!response.ok) {
-     return res.status(402).send({ status: "error", redirect: "/Procesoincompleto" });
-   } else {
-     return res.status(202).send({ status: "ok" });
-   }
- } catch (error) {
-   console.error("Verification failed:", error);
-   return res.status(403).send({ status: "error", redirect: "/Procesoincompleto" });
- }
+async function verificar(req, res) {
+  try {
+    let cookie_ = req.headers.cookie;
+    let clave = "jwt=";
+    if (!cookie_) {
+      return res.status(402).send({ status: "error", message: "No se encontró la cookie JWT" });
+    }
+    if (!cookie_.startsWith("jwt=")) {
+      clave = " jwt=";
+    }
+    let cookie_JTW = cookie_.split(";").find(cookie => cookie.startsWith(clave));
+    if (!cookie_JTW) {
+      return res.status(402).send({ status: "error", message: "No se encontró el token JWT en las cookies" });
+    }
+    cookie_JTW = cookie_JTW.slice(clave.length);
+    console.log(cookie_JTW);
+    let decodificada;
+    try {
+      decodificada = jsonwebtoken.verify(cookie_JTW, process.env.JWT_SECRET);
+    } catch (error) {
+      return res.status(403).send({ status: "error", message: "Token JWT inválido o expirado", redirect: "/Procesoincompleto" });
+    }
+    const response = await fetch("http://localhost:4000/api/verificar", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ decodificada })
+    });
+    // Manejo de la respuesta del servidor de verificación
+    if (!response.ok) {
+      return res.status(402).send({ status: "error", message: "Verificación fallida", redirect: "/Procesoincompleto" });
+    }
+
+    // Si la verificación fue exitosa
+    return res.status(202).send({ status: "ok" });
+
+  } catch (error) {
+    console.error("Error de verificación:", error);
+    return res.status(403).send({ status: "error", message: "Hubo un problema con la verificación", redirect: "/Procesoincompleto" });
+  }
 }
+
 //Se exportan las funciones con una constante
 export const methods = {
  registro,

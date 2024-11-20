@@ -18,9 +18,28 @@ async function nologgeado(req,res,next){
 }
 //La funcion decodifica la cookie para agarrar al usuario y despues usa un fetch para hacer los movimientos desde la clase mysql
 function verificar(req){
- try{
-  const cookie_JTW = req.headers.cookie.split(";").find(cookie => cookie.startsWith("jwt=")).slice(4);
-    const decodificada=jsonwebtoken.verify(cookie_JTW,  process.env.JWT_SECRET)
+  try {
+    let cookie_ = req.headers.cookie;
+    let clave = "jwt=";
+    
+    if (!cookie_) {
+      return false;
+    }
+
+    if (!cookie_.startsWith("jwt=")) {
+      clave = " jwt=";
+    }
+    let cookie_JTW = cookie_.split(";").find(cookie => cookie.startsWith(clave))
+    if (!cookie_JTW) {
+      return false;
+    }
+    cookie_JTW = cookie_JTW.slice(clave.length);
+    let decodificada;
+    try {
+      decodificada = jsonwebtoken.verify(cookie_JTW, process.env.JWT_SECRET);
+    } catch (error) {
+      return false;
+    }
     const x = fetch("http://localhost:4000/api/verificar", {
     method: "POST",
     headers: {

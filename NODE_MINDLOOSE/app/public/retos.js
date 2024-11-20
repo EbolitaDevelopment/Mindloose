@@ -28,32 +28,32 @@ async function mostrarRetos() {
     const cookie = getCookie('retos');
     
     let retos = cookie ? JSON.parse(cookie) : null;
-    console.log(retos)
     const now = new Date().getTime();
     const expiryTime = 7 * 24 * 60 * 60 * 1000;
     if (!retos || now - retos.timestamp > expiryTime) {
         const retoArray = await obtenerRetos();
-        console.log(retoArray)
         retos = { data: retoArray, timestamp: now ,expire: now + expiryTime};
         setCookie('retos', JSON.stringify(retos), 7); 
     }
+    let numero = 0;
     if (retos.data.length > 0) {
-        const contenido = document.getElementById('content');
-        if (retos.data[1] === undefined){retos.data[1]='Solo te faltan los otros para completar el nivel'} 
-        if (retos.data[3] === undefined){retos.data[3]='Solo te faltan los otros para completar el nivel'} 
-        if (retos.data[5] === undefined){retos.data[5]='Solo te faltan los otros para completar el nivel'} 
-        if (retos.data[7] === undefined){retos.data[7]='Solo te faltan los otros para completar el nivel'} 
-        if (retos.data[9] === undefined){retos.data[9]='Solo te faltan los otros para completar el nivel'} 
-        if (retos.data[11] === undefined){retos.data[11]='Solo te faltan los otros para completar el nivel'} 
-        if (retos.data[13] === undefined){retos.data[13]='Solo te faltan los otros para completar el nivel'} 
-        document.getElementById("reto1").innerHTML = retos.data[1];
-        document.getElementById("reto2").innerHTML = retos.data[3];
-        document.getElementById("reto3").innerHTML = retos.data[5];
-        document.getElementById("reto4").innerHTML = retos.data[7];
-        document.getElementById("reto5").innerHTML = retos.data[9];
-        document.getElementById("reto6").innerHTML = retos.data[11];
-        document.getElementById("reto7").innerHTML = retos.data[13];
-        contenido.classList.add('active');
+        let contenedor = document.getElementById("retos")
+        for (let i = 1; i < retos.data.length; i += 2) { 
+            numero = numero+1;
+            if (retos.data[i] === undefined) {
+                retos.data[i] = 'Solo te faltan los otros para completar el nivel';  
+            }
+            let reto = document.createElement("p");
+            reto.id = `r${numero}`;
+            reto.style.fontSize = "17px"; 
+            reto.textContent = `RETO ${numero} -> `+retos.data[i];
+            let check = document.createElement("input");
+            check.id = `reto${numero}`;
+            check.type = "checkbox";
+            check.style.marginLeft = "10px"; 
+            reto.appendChild(check);  
+            contenedor.appendChild(reto);  
+        }
     } else {
         console.error("No hay suficientes retos");
     }
@@ -65,29 +65,33 @@ document.addEventListener('DOMContentLoaded', mostrarRetos);
 //Después de eso establece que si la fecha concuerda con la de las cookies 
 document.getElementById("uProgreso").addEventListener("submit", async (e) => {
     e.preventDefault();
-
-    let x = confirm("Seguro que quieres insertar ese valor?")
-    if(!x){return;}
-    
-    const cookie = getCookie('retos');
-    if (!cookie) {
-        alert("No se encontró la cookie de retos.");
-        return;
-    }
-    
-    const retos = JSON.parse(cookie);
-    const now = new Date().getTime();
-    
-    if (now < retos.timestamp + (7 * 24 * 60 * 60 * 1000)) { 
-        const res = await fetch("http://localhost:4000/api/update", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                valor: e.target.soypro.value
+    let i =1;let r = "";
+    let x = confirm("Seguro que quieres insertar ese valor?");
+    if(!x){return;}x=0;
+    for (i ; i <= 7; i++) {
+        let reto= e.target[`reto${i}`].checked;
+         if(reto===true){
+            x=x+1;
+        r = r + document.getElementById(`r${i}`).textContent.split("-> ")[1]+"*"; 
+        document.getElementById(`r${i}`).innerHTML = "Reto completado";
+        }
+    }console.log(r)
+    try{
+    const consulta = await fetch("http://localhost:4000/api/update",{
+                method:"POST",
+                headers:{
+                "Content-Type" : "application/json"
+                },
+                body: JSON.stringify({
+                    retos: r,
+                    valor: x
+                })
             })
-        });
+    
+        }catch(error){
+            alert(error);
+        }
+    /*
         
         if (res.ok) {
             const uProgreso = document.getElementById('Progreso');
@@ -113,7 +117,7 @@ document.getElementById("uProgreso").addEventListener("submit", async (e) => {
         }
     } else {
         alert("El tiempo para actualizar tu progreso ha expirado.");
-    }
+    }*/
 });
 
 function setCookie(name, value, days) {

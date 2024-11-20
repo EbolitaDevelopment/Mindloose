@@ -77,10 +77,26 @@ async function login(req, response) {
 
 
 async function cuestionario(req, res) {
-
-
-   const cookie_JTW = req.headers.cookie.split(";").find(cookie => cookie.startsWith("jwt=")).slice(4);
-   const decodificada = jsonwebtoken.verify(cookie_JTW, process.env.JWT_SECRET);
+    let cookie_ = req.headers.cookie;
+    let clave = "jwt=";
+    if (!cookie_) {
+      return res.status(402).send({ status: "error", message: "No se encontró la cookie JWT" });
+    }
+    if (!cookie_.startsWith("jwt=")) {
+      clave = " jwt=";
+    }
+    let cookie_JTW = cookie_.split(";").find(cookie => cookie.startsWith(clave));
+    if (!cookie_JTW) {
+      return res.status(402).send({ status: "error", message: "No se encontró el token JWT en las cookies" });
+    }
+    cookie_JTW = cookie_JTW.slice(clave.length);
+    console.log(cookie_JTW);
+    let decodificada;
+    try {
+      decodificada = jsonwebtoken.verify(cookie_JTW, process.env.JWT_SECRET);
+    } catch (error) {
+      return res.status(403).send({ status: "error", message: "Token JWT inválido o expirado", redirect: "/Procesoincompleto" });
+    }
    const usuario = decodificada.user;
    const nivel = parseInt(req.body.nivel);
    const suma = parseInt(req.body.suma);
@@ -104,11 +120,13 @@ async function cuestionario(req, res) {
    }
 }
 async function update(req, res) {
-   const cookie_JTW = req.headers.cookie.split(";").find(cookie => cookie.startsWith("jwt=")).slice(4);
-   const decodificada = jsonwebtoken.verify(cookie_JTW, process.env.JWT_SECRET);
-   const user = decodificada.user;
-   const valor = parseInt(req.body.valor);
-   try {
+    const retos = req.body.retos;
+    retos = retos.split("*");
+    const valor = parseInt(req.body.valor);
+    for(let i = 0;i < valor; i++){
+        
+    }
+    /*try {
        const resultado = parseInt(await progreso2(req, response));
        if (resultado.length === 0) {
            return res.status(400).send({ status: "error" });
@@ -134,15 +152,17 @@ async function update(req, res) {
        res.status(201).send({ status: "ok", message: "El progreso ha sido inicializado" });
    } catch {
        res.status(401).send({ status: "error", message: "Error al inicializar el progreso" });
-   }
+   }*/
 
 
 }
 async function verificar(req, res) {
   
    const email = req.body.decodificada.user;
+   
    try {
-       const [result] = await connection.promise().query(`SELECT mail FROM usuario WHERE mail = '${email}';`);
+    const [result] = await connection.promise().query('SELECT mail FROM usuario WHERE mail = ?', [email]);
+    console.log(result[0])
        if (result.length === 0 || email !== result[0].mail) {
            return res.status(400).send({ status: "error", message: "Los campos son incorrectos" });
        }
@@ -165,9 +185,26 @@ async function cambiarcontrasena(req, res) {
 }
 async function progreso(req, response) {
 
-
-   const cookie_JTW = req.headers.cookie.split(";").find(cookie => cookie.startsWith("jwt=")).slice(4);
-   const decodificada = jsonwebtoken.verify(cookie_JTW, process.env.JWT_SECRET);
+    let cookie_ = req.headers.cookie;
+    let clave = "jwt=";
+    if (!cookie_) {
+      return res.status(402).send({ status: "error", message: "No se encontró la cookie JWT" });
+    }
+    if (!cookie_.startsWith("jwt=")) {
+      clave = " jwt=";
+    }
+    let cookie_JTW = cookie_.split(";").find(cookie => cookie.startsWith(clave));
+    if (!cookie_JTW) {
+      return res.status(402).send({ status: "error", message: "No se encontró el token JWT en las cookies" });
+    }
+    cookie_JTW = cookie_JTW.slice(clave.length);
+    console.log(cookie_JTW);
+    let decodificada;
+    try {
+      decodificada = jsonwebtoken.verify(cookie_JTW, process.env.JWT_SECRET);
+    } catch (error) {
+      return res.status(403).send({ status: "error", message: "Token JWT inválido o expirado", redirect: "/Procesoincompleto" });
+    }
    const user = decodificada.user;
    try {
        const [progress] = await connection.promise().query(`SELECT progreso, nivel FROM progreso WHERE mail like '${user}';`);
@@ -186,10 +223,26 @@ async function progreso(req, response) {
    }
 }
 async function progreso2(req, response) {
-
-
-   const cookie_JTW = req.headers.cookie.split(";").find(cookie => cookie.startsWith("jwt=")).slice(4);
-   const decodificada = jsonwebtoken.verify(cookie_JTW, process.env.JWT_SECRET);
+    let cookie_ = req.headers.cookie;
+    let clave = "jwt=";
+    if (!cookie_) {
+      return res.status(402).send({ status: "error", message: "No se encontró la cookie JWT" });
+    }
+    if (!cookie_.startsWith("jwt=")) {
+      clave = " jwt=";
+    }
+    let cookie_JTW = cookie_.split(";").find(cookie => cookie.startsWith(clave));
+    if (!cookie_JTW) {
+      return res.status(402).send({ status: "error", message: "No se encontró el token JWT en las cookies" });
+    }
+    cookie_JTW = cookie_JTW.slice(clave.length);
+    console.log(cookie_JTW);
+    let decodificada;
+    try {
+      decodificada = jsonwebtoken.verify(cookie_JTW, process.env.JWT_SECRET);
+    } catch (error) {
+      return res.status(403).send({ status: "error", message: "Token JWT inválido o expirado", redirect: "/Procesoincompleto" });
+    }
    const user = decodificada.user;
    try {
        const [progress] = await connection.promise().query(`SELECT progreso, nivel FROM progreso WHERE mail like '${user}';`);
@@ -208,8 +261,26 @@ async function progreso2(req, response) {
    }
 }
 async function progreso3(req, response){
-   const cookie_JTW = req.headers.cookie.split(";").find(cookie => cookie.startsWith("jwt=")).slice(4);
-   const decodificada = jsonwebtoken.verify(cookie_JTW, process.env.JWT_SECRET);
+    let cookie_ = req.headers.cookie;
+    let clave = "jwt=";
+    if (!cookie_) {
+      return res.status(402).send({ status: "error", message: "No se encontró la cookie JWT" });
+    }
+    if (!cookie_.startsWith("jwt=")) {
+      clave = " jwt=";
+    }
+    let cookie_JTW = cookie_.split(";").find(cookie => cookie.startsWith(clave));
+    if (!cookie_JTW) {
+      return res.status(402).send({ status: "error", message: "No se encontró el token JWT en las cookies" });
+    }
+    cookie_JTW = cookie_JTW.slice(clave.length);
+    console.log(cookie_JTW);
+    let decodificada;
+    try {
+      decodificada = jsonwebtoken.verify(cookie_JTW, process.env.JWT_SECRET);
+    } catch (error) {
+      return res.status(403).send({ status: "error", message: "Token JWT inválido o expirado", redirect: "/Procesoincompleto" });
+    }
    const user = decodificada.user;
    try {
        const [progress] = await connection.promise().query(`SELECT nivel FROM progreso WHERE mail like '${user}';`);
@@ -229,8 +300,26 @@ async function progreso3(req, response){
 async function progreso1(req, response) {
 
 
-   const cookie_JTW = req.headers.cookie.split(";").find(cookie => cookie.startsWith("jwt=")).slice(4);
-   const decodificada = jsonwebtoken.verify(cookie_JTW, process.env.JWT_SECRET);
+    let cookie_ = req.headers.cookie;
+    let clave = "jwt=";
+    if (!cookie_) {
+      return res.status(402).send({ status: "error", message: "No se encontró la cookie JWT" });
+    }
+    if (!cookie_.startsWith("jwt=")) {
+      clave = " jwt=";
+    }
+    let cookie_JTW = cookie_.split(";").find(cookie => cookie.startsWith(clave));
+    if (!cookie_JTW) {
+      return res.status(402).send({ status: "error", message: "No se encontró el token JWT en las cookies" });
+    }
+    cookie_JTW = cookie_JTW.slice(clave.length);
+    console.log(cookie_JTW);
+    let decodificada;
+    try {
+      decodificada = jsonwebtoken.verify(cookie_JTW, process.env.JWT_SECRET);
+    } catch (error) {
+      return res.status(403).send({ status: "error", message: "Token JWT inválido o expirado", redirect: "/Procesoincompleto" });
+    }
    const user = decodificada.user;
    try {
        const [progress] = await connection.promise().query(`SELECT progreso, nivel FROM progreso WHERE mail like '${user}';`);
@@ -338,8 +427,26 @@ function verReto(min, max) {
    return nReto;
 }
 async function datos(req, response) {
-   const cookie_JTW = req.headers.cookie.split(";").find(cookie => cookie.startsWith("jwt=")).slice(4);
-   const decodificada = jsonwebtoken.verify(cookie_JTW, process.env.JWT_SECRET);
+    try {
+        let cookie_ = req.headers.cookie;
+        let clave = "jwt=";
+        if (!cookie_) {
+          return res.status(402).send({ status: "error", message: "No se encontró la cookie JWT" });
+        }
+        if (!cookie_.startsWith("jwt=")) {
+          clave = " jwt=";
+        }
+        let cookie_JTW = cookie_.split(";").find(cookie => cookie.startsWith(clave));
+        if (!cookie_JTW) {
+          return res.status(402).send({ status: "error", message: "No se encontró el token JWT en las cookies" });
+        }
+        cookie_JTW = cookie_JTW.slice(clave.length);
+        let decodificada;
+        try {
+          decodificada = jsonwebtoken.verify(cookie_JTW, process.env.JWT_SECRET);
+        } catch (error) {
+          return res.status(403).send({ status: "error", message: "Token JWT inválido o expirado", redirect: "/Procesoincompleto" });
+        }
    const user = decodificada.user;
    try {
        const [result] = await connection.promise().query(`SELECT mail,nombre,apellidopat,apellidomat FROM usuario WHERE mail = '${user}';`);
@@ -358,7 +465,9 @@ async function datos(req, response) {
        }
    } catch {
        return response.status(400).send({ status: "error", message: "Los campos son incorrectos" });
-   }
+   }}catch(error){
+            return res.status(403).send({ status: "error", message: "Token JWT inválido o expirado", redirect: "/Procesoincompleto" });
+        }
 
 
 }
@@ -419,7 +528,8 @@ export const querys = {
    cambiarcontrasena,
    progreso,
    retos,
-   update, datos,
+   update, 
+   datos,
    comentarios
 }
 
