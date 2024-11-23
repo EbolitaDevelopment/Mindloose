@@ -77,7 +77,7 @@ document.getElementById("uProgreso").addEventListener("submit", async (e) => {
         }
     }console.log(r)
     try{
-    const consulta = await fetch("http://localhost:4000/api/update",{
+    let res = await fetch("http://localhost:4000/api/update",{
                 method:"POST",
                 headers:{
                 "Content-Type" : "application/json"
@@ -91,9 +91,9 @@ document.getElementById("uProgreso").addEventListener("submit", async (e) => {
         }catch(error){
             alert(error);
         }
-    /*
-        
-        if (res.ok) {
+        if (res.ok){
+            let cookie = getCookie('retos');
+
             const uProgreso = document.getElementById('Progreso');
             uProgreso.classList.add('inactive');
             try{
@@ -115,10 +115,8 @@ document.getElementById("uProgreso").addEventListener("submit", async (e) => {
         if (resJson.redirect) {
             window.location.href = resJson.redirect;
         }
-    } else {
-        alert("El tiempo para actualizar tu progreso ha expirado.");
-    }*/
-});
+    } 
+);
 
 function setCookie(name, value, days) {
     const date = new Date();

@@ -120,20 +120,18 @@ async function cuestionario(req, res) {
    }
 }
 async function update(req, res) {
-    const retos = req.body.retos;
+    let retos = req.body.retos;
+    
     retos = retos.split("*");
     const valor = parseInt(req.body.valor);
-    for(let i = 0;i < valor; i++){
-        
-    }
-    /*try {
+    try {
        const resultado = parseInt(await progreso2(req, response));
        if (resultado.length === 0) {
            return res.status(400).send({ status: "error" });
        }
-       const progresof = resultado + valor;
+       const progresof = resultado.progreso + valor;
+       const user = resultado.user;
        let nivel;
-
 
        if (progresof >= 0 && progresof < 30) { nivel = 1 }
        if (progresof >= 30 && progresof < 60) { nivel = 2 }
@@ -141,18 +139,27 @@ async function update(req, res) {
        if (progresof >= 90 && progresof < 115) { nivel = 4 }
        if (progresof >= 115 && progresof < 125) { nivel = 5 }
        if (progresof === 125) { return; }
-       const [insertResult] = await connection.promise().query(`UPDATE progreso SET progreso = ${progresof},
+       let [insertResult] = await connection.promise().query(`UPDATE progreso SET progreso = ${progresof},
        nivel = ${nivel} WHERE mail = '${user}';`,);
        if (insertResult.affectedRows === 0) {
            console.log(progresof, nivel)
            return res.status(400).send({ status: "error", message: "Error al inicializar el progreso" });
-       }
-
-
+       }let nReto;
+    for(let i = 0;i < valor; i++){
+        [insertResult] = await connection.promise().query(`SELECT nReto FROM retos WHERE descripción = ${retos[i]}`);
+        if ( insertResult[0] = [] ) {
+            return x.status(401).send({ status: "error", message: "datos invalidos"});
+        }
+        nReto=insertResult;
+        [insertResult] = await connection.promise().query(`INSERT INTO retosCompletados VALUES ${nReto}`);
+        if ( insertResult.affectedRows === 0) {
+            return x.status(401).send({ status: "error", message: "datos invalidos"});
+        }
+    }
        res.status(201).send({ status: "ok", message: "El progreso ha sido inicializado" });
    } catch {
        res.status(401).send({ status: "error", message: "Error al inicializar el progreso" });
-   }*/
+   }
 
 
 }
@@ -251,7 +258,8 @@ async function progreso2(req, response) {
            return response.status(400).send({ status: "Error" });
        } else {
            console.log("Progreso encontrado:", progress[0].progreso);
-           return progress[0].progreso;
+           return {progreso: progress[0].progreso,
+                    user: user};
        }
    } catch {
        console.error("Error al obtener el progreso");
