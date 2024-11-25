@@ -67,4 +67,6 @@ END $$
 DELIMITER ;
 #ESTE PROCEDIMIENTO ES PARA QUE EL ADMINISTRADOR CONSULTE EL PROGRESO y nivel DE LOS USUARIOS
 
-
+SELECT nReto FROM retos WHERE descripción = 'En la ducha trata de NO pensar en nada, simplementa bañate';
+DELETE FROM retosCompletados WHERE mail = 'ejemplo@gmail.com';
+UPDATE progreso SET progreso = 0, nivel = 1 WHERE mail = 'ejemplo@gmail.com';

@@ -121,48 +121,64 @@ async function cuestionario(req, res) {
 }
 async function update(req, res) {
     let retos = req.body.retos;
-    
-    retos = retos.split("*");
-    const valor = parseInt(req.body.valor);
+    retos = retos.split("*");  
+    let valor = parseInt(req.body.valor);
+
     try {
-       const resultado = parseInt(await progreso2(req, response));
-       if (resultado.length === 0) {
-           return res.status(400).send({ status: "error" });
-       }
-       const progresof = resultado.progreso + valor;
-       const user = resultado.user;
-       let nivel;
+        const resultado = await progreso2(req, res);  
 
-       if (progresof >= 0 && progresof < 30) { nivel = 1 }
-       if (progresof >= 30 && progresof < 60) { nivel = 2 }
-       if (progresof >= 60 && progresof < 90) { nivel = 3 }
-       if (progresof >= 90 && progresof < 115) { nivel = 4 }
-       if (progresof >= 115 && progresof < 125) { nivel = 5 }
-       if (progresof === 125) { return; }
-       let [insertResult] = await connection.promise().query(`UPDATE progreso SET progreso = ${progresof},
-       nivel = ${nivel} WHERE mail = '${user}';`,);
-       if (insertResult.affectedRows === 0) {
-           console.log(progresof, nivel)
-           return res.status(400).send({ status: "error", message: "Error al inicializar el progreso" });
-       }let nReto;
-    for(let i = 0;i < valor; i++){
-        [insertResult] = await connection.promise().query(`SELECT nReto FROM retos WHERE descripción = ${retos[i]}`);
-        if ( insertResult[0] = [] ) {
-            return x.status(401).send({ status: "error", message: "datos invalidos"});
+        if (resultado.length === 0) {
+            return res.status(400).send({ status: "error", message: "No se encontraron resultados." });
         }
-        nReto=insertResult;
-        [insertResult] = await connection.promise().query(`INSERT INTO retosCompletados VALUES ${nReto}`);
-        if ( insertResult.affectedRows === 0) {
-            return x.status(401).send({ status: "error", message: "datos invalidos"});
+
+        const progresof = resultado.progreso + valor;
+        const user = resultado.user;
+        let nivel;
+        if (progresof >= 0 && progresof < 30) { nivel = 1; }
+        else if (progresof >= 30 && progresof < 60) { nivel = 2; }
+        else if (progresof >= 60 && progresof < 90) { nivel = 3; }
+        else if (progresof >= 90 && progresof < 115) { nivel = 4; }
+        else if (progresof >= 115 && progresof < 125) { nivel = 5; }
+        else if (progresof === 125) { return; } 
+
+        let [insertResult] = await connection.promise().query(
+            `UPDATE progreso SET progreso = ?, nivel = ? WHERE mail = ?`, 
+            [progresof, nivel, user]
+        );
+
+        if (insertResult.affectedRows === 0) {
+            return res.status(400).send({ status: "error", message: "Error al actualizar el progreso" });
         }
+
+        let nReto;
+        for (let i = 0; i < valor; i++) {
+            insertResult = await connection.promise().query(
+                `SELECT nReto FROM retos WHERE descripción = '${retos[i]}'`
+            );
+            if (insertResult[0][0] == []) {
+                return res.status(403).send({ status: "error", message: "Datos invalidos" });
+            }
+
+            nReto = insertResult[0][0].nReto;
+
+            insertResult = await connection.promise().query(
+                `INSERT INTO retosCompletados VALUES (?, ?)`, 
+                [nReto, user]
+            );
+
+            if (insertResult.affectedRows === 0) {
+                return res.status(405).send({ status: "error", message: "Error al completar el reto" });
+            }
+        }
+
+        return res.status(201).send({ status: "ok", message: "El progreso ha sido actualizado" });
+
+    } catch (error) {
+        console.error(error);  
+        return res.status(402).send({ status: "error", message: "Error al actualizar el progreso" });
     }
-       res.status(201).send({ status: "ok", message: "El progreso ha sido inicializado" });
-   } catch {
-       res.status(401).send({ status: "error", message: "Error al inicializar el progreso" });
-   }
-
-
 }
+
 async function verificar(req, res) {
   
    const email = req.body.decodificada.user;
@@ -390,39 +406,32 @@ async function retos(req, res) {
 
 
        var comprobar = false; var nReto; var allRetos = ''; var retos1; var retos; var Iretos; var i = 0; var o = 0;
+       let array = [];let tupu=0;
        try {
            do {
                const [checar] = await connection.promise().query('SELECT id FROM retosCompletados WHERE mail = ?', [user]);
                nReto = verReto(coeficiente, coeficiente2);
                comprobar = checar.some(reto => reto.id === nReto);
-                  
-               if (comprobar === false) {
-                   [retos] = await connection.promise().query(`SELECT descripción FROM retos WHERE nReto = ${nReto}`);
-                   console.log(nReto)
-                   console.log(retos[0])
-                   if (retos.length === 0) {
-                       return res.status(403).send({ status: "error" });
-                   }
-                   retos1 = retos[0].descripción;
-
-
-                   [Iretos] = await connection.promise().query(`INSERT INTO retosCompletados VALUES (?, ?)`, [nReto, user]);
-                  
-                   if (Iretos.affectedRows === 0) {
-                       return res.status(402).send({ status: "error", message: "Error al inicializar el progreso" });
-                   }
-
-
-                   allRetos = allRetos + "'" + retos1 + "'"
-                   i = i + 1
-               }
-               if (comprobar === true) {
+                if (array.includes(nReto)||comprobar === true) {
                    i = i
                    o = o + 1
                   
                }
+               if (comprobar === false) {
+                    tupu = tupu+1
+                    array[tupu]= nReto ;
+                   [retos] = await connection.promise().query(`SELECT descripción FROM retos WHERE nReto = ${nReto}`);
+                   if (retos.length === 0) {
+                       return res.status(403).send({ status: "error" });
+                   }
+                   retos1 = retos[0].descripción;
+                   allRetos = allRetos + "'" + retos1 + "'"
+                   i = i + 1
+               }
+               
            } while (i < 7 && o<29)
        console.log(allRetos)
+       console.log(array)
        }
        catch (error) {
            return res.status(409).send({ status: "error", message: "Error querying database" });

@@ -25,9 +25,15 @@ function nums1(evt) {
 //Despues evalua si el array esta completo y despues establece los ids de los retos como los valores obtenidos de obtener retos
 async function mostrarRetos() {
     
-    const cookie = getCookie('retos');
-    
-    let retos = cookie ? JSON.parse(cookie) : null;
+    let retos = null;
+const cookie = getCookie('retos');
+if (cookie) {
+    try {
+        retos = JSON.parse(cookie);
+    } catch (e) {
+        console.error('Error parsing cookie:', e);
+    }
+}
     const now = new Date().getTime();
     const expiryTime = 7 * 24 * 60 * 60 * 1000;
     if (!retos || now - retos.timestamp > expiryTime) {
@@ -40,15 +46,24 @@ async function mostrarRetos() {
         let contenedor = document.getElementById("retos")
         for (let i = 1; i < retos.data.length; i += 2) { 
             numero = numero+1;
-            if (retos.data[i] === undefined) {
-                retos.data[i] = 'Solo te faltan los otros para completar el nivel';  
+            let valor = 0
+            if (retos.data[i] === null) {
+                retos.data[i] = 'Solo te faltan los otros para completar el nivel';
+
+                valor = 1;
             }
+            
             let reto = document.createElement("p");
             reto.id = `r${numero}`;
             reto.style.fontSize = "17px"; 
             reto.textContent = `RETO ${numero} -> `+retos.data[i];
+            
             let check = document.createElement("input");
             check.id = `reto${numero}`;
+            if(valor === 1){
+            reto.className = `realizado${numero}`;
+            check.style.display="none";
+                        }
             check.type = "checkbox";
             check.style.marginLeft = "10px"; 
             reto.appendChild(check);  
@@ -65,59 +80,75 @@ document.addEventListener('DOMContentLoaded', mostrarRetos);
 //Después de eso establece que si la fecha concuerda con la de las cookies 
 document.getElementById("uProgreso").addEventListener("submit", async (e) => {
     e.preventDefault();
-    let i =1;let r = "";
-    let x = confirm("Seguro que quieres insertar ese valor?");
-    if(!x){return;}x=0;
-    for (i ; i <= 7; i++) {
-        let reto= e.target[`reto${i}`].checked;
-         if(reto===true){
-            x=x+1;
-        r = r + document.getElementById(`r${i}`).textContent.split("-> ")[1]+"*"; 
-        document.getElementById(`r${i}`).innerHTML = "Reto completado";
-        }
-    }console.log(r)
-    try{
-    let res = await fetch("http://localhost:4000/api/update",{
-                method:"POST",
-                headers:{
-                "Content-Type" : "application/json"
-                },
-                body: JSON.stringify({
-                    retos: r,
-                    valor: x
-                })
-            })
-    
-        }catch(error){
-            alert(error);
-        }
-        if (res.ok){
-            let cookie = getCookie('retos');
 
-            const uProgreso = document.getElementById('Progreso');
-            uProgreso.classList.add('inactive');
-            try{
-                const response = await fetch("http://localhost:4000/api/comentarios");
-                const responseJSON = await response.json();
+    let x = 0;
+    let r = "";
+    let userConfirmed = confirm("¿Seguro que quieres insertar ese valor?");
+    if (!userConfirmed) return;
 
-                if((responseJSON.body2).length > 0 && (responseJSON.body).length > 0){
-                const respuesta = responseJSON.body+","+responseJSON.body2
-                alert(respuesta)
-            }
-                else{
-                    alert("No se pudieron concretar la consulta de los consejos")
+    for (let i = 1; i <= 7; i++) {
+        const retoChecked = e.target[`reto${i}`].checked;
+        const estado = document.getElementsByClassName(`realizado${i}`);
+        
+        if (estado.length === 0 && retoChecked) {
+            x += 1;
+            const retoText = document.getElementById(`r${i}`).textContent.split("-> ")[1];
+            r += retoText + "*";
+            document.getElementById(`r${i}`).innerHTML = "Reto completado";
+        }
+    }
+
+    if (x === 0) return;
+
+    try {
+        const res = await fetch("http://localhost:4000/api/update", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                retos: r,
+                valor: x,
+            }),
+        });
+
+        if (res.ok) {
+            const cookie = getCookie('retos');
+            let retos = null;
+if (cookie) {    
+    try {
+        retos = JSON.parse(cookie);
+    } catch (e) {
+        console.error('Error parsing cookie:', e);
+    }
+}
+            if (retos && retos.data) {
+                r = r.split("*");
+                for (let i = 1; i < retos.data.length; i += 2) {
+                    for (let j = 0; j < x; j++) {
+                        if (retos.data[i] === r[j]) {
+                            retos.data[i] = undefined;
+                            console.log(`El reto ${retos.data[i]} ha sido eliminado`);
+                        }
+                    }
                 }
-            }catch{alert("Hubo un problema al extraer los datos")}
-        }
-        
-        const resJson = await res.json();
-        
-        if (resJson.redirect) {
-            window.location.href = resJson.redirect;
-        }
-    } 
-);
 
+                // Eliminar la cookie existente y establecer la nueva
+                document.cookie = 'retos=; path=/ ; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+                setCookie('retos', JSON.stringify(retos), 7);
+            }
+
+            // Obtener la respuesta del servidor
+            const resJson = await res.json();
+
+            if (resJson.redirect) {
+                window.location.href = resJson.redirect;
+            }
+        }
+    } catch (error) {
+        alert("Error al actualizar los datos: " + error.message);
+    }
+});
 function setCookie(name, value, days) {
     const date = new Date();
     date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
